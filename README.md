@@ -85,4 +85,4 @@ This repo demonstrates a practical application of Hugging Face Transformers and 
 
 **Lingesh S**
 Interested in LLMs, RAG pipelines, and practical NLP
-[GitHub](https://github.com/Lingesh-S) • [LinkedIn](https://linkedin.com/in/lingesh-s)
+[GitHub](https://github.com/Lingesh-S) • [LinkedIn](https://linkedin.com/in/lingesh-s29)
