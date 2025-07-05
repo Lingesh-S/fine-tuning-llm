@@ -80,6 +80,17 @@ pip install datasets pandas torch transformers[torch] python-dotenv peft
 * 🔤 Fine-tuned model saved to local or Google Drive
 * 📜 Text generations in Tamil using seed prompts
 
+## 📚 Learning Resources
+
+If you're exploring LoRA (Low-Rank Adaptation) or PEFT (Parameter-Efficient Fine-Tuning), here are some high-quality resources to deepen your understanding:
+
+- 🔬 [LoRA: Low-Rank Adaptation of Large Language Models (Paper)](https://arxiv.org/abs/2106.09685)
+- 🤗 [Hugging Face PEFT Documentation](https://huggingface.co/docs/peft/index)
+- 💡 [Fine-Tuning vs. Parameter-Efficient Fine-Tuning – Sebastian Raschka](https://sebastianraschka.com/blog/2023/peft.html)
+
+These links complement the methods used in `Fine_Tune_LLM_Part_2.py`.
+
+
 # 🙌 Acknowledgements
 
 This repo demonstrates a practical application of Hugging Face Transformers and LoRA. Special thanks to open datasets and pretrained models shared on 🤗 Hugging Face Hub.
