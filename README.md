@@ -3,7 +3,10 @@
 This project demonstrates fine-tuning of transformer-based language models for creative Tamil story generation. It includes two parts:
 
 * 📘 `Fine_Tune_LLM_Part_1.ipynb` – Basic fine-tuning using Hugging Face Transformers
-* 🧪 `Fine_Tune_LLM_Part_2.py` – Advanced fine-tuning with LoRA (Low-Rank Adaptation) for efficient training
+* 🧪 `Fine_Tune_LLM_Part_2.py` – Advanced fine-tuning with LoRA (Low-Rank Adaptation) for efficient training.  
+  🔬 LoRA helps reduce training cost and memory usage while maintaining performance.  
+  📄 Read more: [LoRA Research Paper](https://arxiv.org/abs/2106.09685)
+
 
 ---
 # 📁 Project Structure
