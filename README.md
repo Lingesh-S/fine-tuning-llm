@@ -1,82 +1,67 @@
 # 🚀 Fine-Tuning LLM for Tamil Story Generation
 
-This project demonstrates fine-tuning of transformer-based language models for creative Tamil story generation. It includes two parts:
+[![CI](https://github.com/Lingesh-S/fine-tuning-llm/actions/workflows/ci.yml/badge.svg)](https://github.com/Lingesh-S/fine-tuning-llm/actions/workflows/ci.yml)
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/Lingesh-S/fine-tuning-llm/blob/main/colab_quickstart.ipynb)
 
-* 📘 `Fine_Tune_LLM_Part_1.ipynb` – Basic fine-tuning using Hugging Face Transformers
-* 🧪 `Fine_Tune_LLM_Part_2.py` – Advanced fine-tuning with LoRA (Low-Rank Adaptation) for efficient training.  
-  🔬 LoRA helps reduce training cost and memory usage while maintaining performance.  
-  📄 Read more: [LoRA Research Paper](https://arxiv.org/abs/2106.09685)
+Fine-tunes `distilgpt2` with **LoRA** (Low-Rank Adaptation) on Tamil short stories so it can continue a Tamil prompt such as **ஒரு நாள்** ("one day"). LoRA trains about 0.1% of the parameters, which keeps training fast and the saved adapter small. 📄 [LoRA paper](https://arxiv.org/abs/2106.09685)
 
 ---
+
 # 📁 Project Structure
 
 ```bash
 .
-├── Fine_Tune_LLM_Part_1.ipynb   # Basic fine-tuning using HuggingFace Trainer
-├── Fine_Tune_LLM_Part_2.py      # Full pipeline with dataset prep, LoRA, and model saving
-└── README.md                    # You're here!
+├── train.py                 # Load data, apply LoRA, train, evaluate, save adapter + metrics.json
+├── generate.py              # Generate text with base model + adapter (or base model alone)
+├── tamil_lora/
+│   ├── config.py            # TrainConfig dataclass and CLI flags
+│   └── data.py              # Dataset loading (Hub id or local file) and tokenisation
+├── colab_quickstart.ipynb   # Runs train.py / generate.py on Colab
+├── tests/                   # Unit tests + an offline end-to-end training smoke test
+└── requirements.txt
 ```
 
-# 📌 Part 1: Basic LLM Fine-Tuning
+# ⚡ What it does
 
-* 🔧 Model: llama-2-7b
-* 📦 Library: transformers
-* 📊 Dataset: Custom via `load_dataset("your_dataset")`
-
-## ✨ Key Steps
-
-* Load tokenizer and model
-* Tokenize dataset
-* Define training configuration
-* Use Hugging Face Trainer API
-* Save the fine-tuned model
-
-# ⚡ Part 2: LoRA-based Efficient Fine-Tuning
-
-* 🎯 Goal: Fine-tune distilgpt2 on Tamil stories
-* 🧠 Dataset: `tniranjan/aitamilnadu_tamil_stories_no_instruct`
-* 💡 Optimization: LoRA + AdamW + Trainer API
-* 🔐 Uses Hugging Face Hub login via `.env`
-
-## 🔧 Key Libraries Used
-
-* `transformers`
-* `peft` (Parameter-Efficient Fine-Tuning)
-* `datasets`, `torch`, `pandas`
-* `huggingface_hub`, `python-dotenv`
-
-## 📘 Highlights
-
-* Preprocessing and tokenization
-* LoRA configuration via `LoraConfig`
-* Custom training loop using `Trainer`
-* Saves model to Google Drive (Colab integration)
-* Generates creative Tamil stories using prompts like **ஒரு நாள்**
+* 🎯 Model: `distilgpt2` (any causal LM via `--model-name`)
+* 🧠 Dataset: [`tniranjan/aitamilnadu_tamil_stories_no_instruct`](https://huggingface.co/datasets/tniranjan/aitamilnadu_tamil_stories_no_instruct) (first 1,000 stories by default), or a local `.txt` / `.jsonl` / `.csv`
+* 💡 LoRA on GPT-2 attention (`c_attn`, r=8, alpha=32, dropout=0.1) with the Hugging Face `Trainer`
+* 📏 Evaluation loss and perplexity each epoch, saved to `outputs/.../metrics.json`
+* ☁️ Optional `--push-to-hub` (uses `HF_TOKEN`)
 
 # 📌 How to Run
 
-▶️ Open Notebook in Colab
+```bash
+python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+
+python train.py                                       # full run (GPU recommended)
+python train.py --max-steps 20 --train-samples 64     # quick CPU smoke run
+python generate.py --adapter outputs/distilgpt2-tamil-lora --prompt "ஒரு நாள் "
+python generate.py --no-adapter --prompt "ஒரு நாள் "  # compare with the base model
+```
+
+`python train.py --help` lists every option. Or open the notebook in Colab with the badge above.
+
+# 🧪 Tests
+
+```bash
+pip install -r requirements-dev.txt
+ruff check . && pytest
+```
+
+The smoke test builds a tiny random GPT-2 and tokenizer on the fly and runs `train.py` for 3 steps, so it needs no downloads.
 
 # 🧠 Concepts Demonstrated
 
-* Transfer Learning in NLP
-* Fine-tuning Causal Language Models
-* Tokenization and padding
-* Training configuration with `TrainingArguments`
-* Efficient training using LoRA (low-rank matrix adaptation)
-* Model saving/loading and inference
-* Tamil language generation with Transformers
+* Parameter-efficient fine-tuning of a causal language model with LoRA
+* Tokenisation without wasted padding (dynamic padding in the data collator)
+* Reproducible runs: fixed seed, saved config and metrics
+* Model saving/loading and sampling-based generation
 
-# 📦 Requirements
+# ⚠️ Limitations
 
-```bash
-pip install datasets pandas torch transformers[torch] python-dotenv peft
-```
-
-# 📂 Outputs
-
-* 🔤 Fine-tuned model saved to local or Google Drive
-* 📜 Text generations in Tamil using seed prompts
+distilgpt2's tokenizer was built for English, so Tamil text splits into many byte-level tokens and output quality is limited. A multilingual base model (for example a small Llama, Qwen or Gemma variant) is the natural next step: pass it with `--model-name` and set `--target-modules q_proj v_proj`.
 
 ## 📚 Learning Resources
 
@@ -86,7 +71,7 @@ If you're exploring LoRA (Low-Rank Adaptation) or PEFT (Parameter-Efficient Fine
 - 🤗 [Hugging Face PEFT Documentation](https://huggingface.co/docs/peft/index)
 - 💡 [Fine-Tuning vs. Parameter-Efficient Fine-Tuning – Sebastian Raschka](https://sebastianraschka.com/blog/2023/peft.html)
 
-These links complement the methods used in `Fine_Tune_LLM_Part_2.py`.
+These links complement the methods used in `train.py`.
 
 
 # 🙌 Acknowledgements
